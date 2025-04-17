@@ -35,18 +35,15 @@ unsafe extern "C" fn effect_handler(fighter: &mut L2CFighterCommon) {
             }
 
             if MotionModule::frame(fighter.module_accessor) == 10.0 {
-                if fighter.global_table[FIGHTER_KIND] == FIGHTER_KIND_BAYONETTA{
-                    return();
-                }else{
+                if !WorkModule::get_int(fighter.module_accessor, *FIGHTER_INSTANCE_WORK_ID_INT_KIND) == FIGHTER_KIND_BAYONETTA{
+                    let remaining_frames = MotionModule::end_frame(fighter.module_accessor) - WorkModule::get_int(fighter.module_accessor, *FIGHTER_STATUS_ESCAPE_WORK_INT_FRAME) as f32;
+                    let original_time_remaining = remaining_frames / 60.0;
+                    let target_time_remaining = 30.0 / 60.0;
 
-                let remaining_frames = MotionModule::end_frame(fighter.module_accessor) - WorkModule::get_int(fighter.module_accessor, *FIGHTER_STATUS_ESCAPE_WORK_INT_FRAME) as f32;
-                let original_time_remaining = remaining_frames / 60.0;
-                let target_time_remaining = 30.0 / 60.0;
+                    let play_mult = original_time_remaining / target_time_remaining;
 
-                let play_mult = original_time_remaining / target_time_remaining;
-
-                MotionModule::set_rate(fighter.module_accessor, play_mult);
-            }
+                    MotionModule::set_rate(fighter.module_accessor, play_mult);
+                }
             }
         }
     }
