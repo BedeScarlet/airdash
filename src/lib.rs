@@ -13,9 +13,11 @@
     clippy::borrow_interior_mutable_const
 )]
 
-mod EDIT;
+mod visual;
+mod mechanic;
 
 #[skyline::main(name = "plugin")]
 pub fn main() {
-    EDIT::install();
+    visual::install();
+	mechanic::install();
 }
