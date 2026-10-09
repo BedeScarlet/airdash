@@ -10,7 +10,7 @@ use ::{
     smashline::{ Priority::*, * },
 };
 
-unsafe extern "C" fn bayo_game_escapeairslide(agent: &mut L2CAgentBase) {
+unsafe extern "C" fn game_escapeairslide(agent: &mut L2CAgentBase) {
     frame(agent.lua_state_agent, 14.0);
     if macros::is_excute(agent) {
         WorkModule::on_flag(agent.module_accessor,*FIGHTER_STATUS_ESCAPE_AIR_FLAG_SLIDE_ENABLE_GRAVITY);
@@ -22,6 +22,14 @@ unsafe extern "C" fn bayo_game_escapeairslide(agent: &mut L2CAgentBase) {
     }
 }
 
+unsafe extern "C" fn escapeairslide_opff(fighter: &mut L2CFighterCommon) {
+    if WorkModule::is_flag(fighter.module_accessor, *FIGHTER_STATUS_ESCAPE_AIR_FLAG_SLIDE) {
+        WorkModule::on_flag(fighter.module_accessor,*FIGHTER_INSTANCE_WORK_ID_FLAG_DISABLE_ESCAPE_PENALTY);
+    } else {
+        WorkModule::off_flag(fighter.module_accessor,*FIGHTER_INSTANCE_WORK_ID_FLAG_DISABLE_ESCAPE_PENALTY);
+    }
+}
+
 unsafe extern "C" fn elight_forceoff_foresight(fighter: &mut L2CFighterCommon) {
     if MotionModule::motion_kind(fighter.module_accessor) == smash::hash40("escape_air_slide") {
         WorkModule::off_flag(fighter.module_accessor,*FIGHTER_ELIGHT_INSTANCE_WORK_ID_FLAG_FORESIGHT_SUCCESS);
@@ -30,11 +38,12 @@ unsafe extern "C" fn elight_forceoff_foresight(fighter: &mut L2CFighterCommon) {
     }
 }
 
-unsafe extern "C" fn disable_escapeairslide_penalty(fighter: &mut L2CFighterCommon) {}
-
 pub fn install() {
-    Agent::new("bayonetta")
-        .game_acmd("game_escapeairslide", bayo_game_escapeairslide, High)
+    Agent::new("elight")
+        .on_line(Main, elight_forceoff_foresight)
         .install();
-    Agent::new("elight").on_line(Main, elight_forceoff_foresight).install();
+    Agent::new("fighter")
+        .on_line(Main, escapeairslide_opff)
+        .game_acmd("game_escapeairslide", game_escapeairslide, High)
+        .install();
 }

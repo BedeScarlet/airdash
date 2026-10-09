@@ -11,60 +11,48 @@ use ::{
 };
 
 unsafe extern "C" fn effect_handler(fighter: &mut L2CFighterCommon) {
-    unsafe {
-        if WorkModule::is_flag(fighter.module_accessor, *FIGHTER_STATUS_ESCAPE_AIR_FLAG_SLIDE) {
-            // does effects
-            if MotionModule::frame(fighter.module_accessor) == 1.0 {
-                let speed_x = KineticModule::get_sum_speed_x(fighter.module_accessor,*KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-                let speed_y = KineticModule::get_sum_speed_y(fighter.module_accessor,*KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-                let speed_x_adjust = if speed_x == 0.0 { 0.01 } else { 0.0 };
-                let angle = (speed_y / (speed_x + speed_x_adjust)).atan();
+    if WorkModule::is_flag(fighter.module_accessor, *FIGHTER_STATUS_ESCAPE_AIR_FLAG_SLIDE) {
+        // does effects
+        if MotionModule::frame(fighter.module_accessor) == 1.0 {
+            let speed_x = KineticModule::get_sum_speed_x(fighter.module_accessor,*KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
+            let speed_y = KineticModule::get_sum_speed_y(fighter.module_accessor,*KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
+            let speed_x_adjust = if speed_x == 0.0 { 0.01 } else { 0.0 };
+            let angle = (speed_y / (speed_x + speed_x_adjust)).atan();
 
-                let pos = Vector3f { x: 0.0, y: 6.5, z: 0.0 };
-                let mut rot = Vector3f { x: 0.0, y: 0.0, z: 90.0 + (180.0 * angle) / 3.14159 };
+            let pos = Vector3f { x: 0.0, y: 6.5, z: 0.0 };
+            let mut rot = Vector3f { x: 0.0, y: 0.0, z: 90.0 + (180.0 * angle) / 3.14159 };
 
-                if speed_x >= 1.4 || speed_y >= 1.4 {
-                    EffectModule::req_on_joint(fighter.module_accessor,
-                        Hash40::new("sys_whirlwind_r"),
-                        Hash40::new("top"),
-                        &pos, &rot,
-                        0.75,
-                        &(Vector3f { x: 0.0, y: 0.0, z: 0.0 }), 
-                        &(Vector3f { x: 0.0, y: 0.0, z: 0.0 }),
-                        false,0,0,0
-                    );
-                } else if speed_x < -1.4 || speed_y < -1.4 {
-                    rot = Vector3f { x: 0.0, y: 0.0, z: -90.0 + (180.0 * angle) / 3.14159 };
-                    EffectModule::req_on_joint(
-                        fighter.module_accessor,
-                        Hash40::new("sys_whirlwind_l"),
-                        Hash40::new("top"),
-                        &pos,&rot,
-                        0.75,
-                        &(Vector3f { x: 0.0, y: 0.0, z: 0.0 }),
-                        &(Vector3f { x: 0.0, y: 0.0, z: 0.0 }),
-                        false,0,0,0
-                    );
-                }
+            if speed_x >= 1.4 || speed_y >= 1.4 {
+                EffectModule::req_on_joint(fighter.module_accessor,
+                    Hash40::new("sys_whirlwind_r"),
+                    Hash40::new("top"),
+                    &pos, &rot,
+                    0.75, 
+                    &(Vector3f { x: 0.0, y: 0.0, z: 0.0 }), &(Vector3f { x: 0.0, y: 0.0, z: 0.0 }), false,0,0,0
+                );
+            } else if speed_x < -1.4 || speed_y < -1.4 {
+                rot = Vector3f { x: 0.0, y: 0.0, z: -90.0 + (180.0 * angle) / 3.14159 };
+                EffectModule::req_on_joint(
+                    fighter.module_accessor,
+                    Hash40::new("sys_whirlwind_l"),
+                    Hash40::new("top"),
+                    &pos,&rot,
+                    0.75,
+                    &(Vector3f { x: 0.0, y: 0.0, z: 0.0 }), &(Vector3f { x: 0.0, y: 0.0, z: 0.0 }), false,0,0,0
+                );
             }
-            // animation
-            if MotionModule::frame(fighter.module_accessor) == 0.0 {
-                MotionModule::set_rate(fighter.module_accessor, 6.0);
-            }
-            if MotionModule::frame(fighter.module_accessor) == 6.0 {
-                MotionModule::set_rate(fighter.module_accessor, 1.0);
-            }
-            if MotionModule::frame(fighter.module_accessor) == 12.0 {
-                if
-                    !WorkModule::get_int(fighter.module_accessor,*FIGHTER_INSTANCE_WORK_ID_INT_KIND) == FIGHTER_KIND_BAYONETTA {
-                    let remaining_frames = MotionModule::end_frame(fighter.module_accessor) - (WorkModule::get_int(fighter.module_accessor,*FIGHTER_STATUS_ESCAPE_WORK_INT_FRAME) as f32);
-                    let original_time_remaining = remaining_frames / 60.0;
-                    let target_time_remaining = 24.0 / 60.0;
+        }
+        if MotionModule::frame(fighter.module_accessor) == 18.0 {
+            if
+                !WorkModule::get_int(fighter.module_accessor,*FIGHTER_INSTANCE_WORK_ID_INT_KIND) == FIGHTER_KIND_BAYONETTA {
+                let fps = 60.0;
+                let remaining_frames = MotionModule::end_frame(fighter.module_accessor) - MotionModule::end_frame(fighter.module_accessor);
+                let original_time_remaining = remaining_frames / fps;
+                let target_time_remaining = 30.0 / fps;
 
-                    let play_mult = original_time_remaining / target_time_remaining;
+                let play_mult = original_time_remaining / target_time_remaining;
 
-                    MotionModule::set_rate(fighter.module_accessor, play_mult);
-                }
+                MotionModule::set_rate(fighter.module_accessor, play_mult);
             }
         }
     }
