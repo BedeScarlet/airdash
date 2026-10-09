@@ -1,6 +1,6 @@
 [package]
 name = "airdash"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["bedescarlet"]
 edition = "2018"
 
@@ -12,10 +12,11 @@ crate-type = ["cdylib"]
 
 [dependencies]
 skyline = { git = "https://github.com/ultimate-research/skyline-rs.git" }
-skyline_smash = { git = "https://github.com/blu-dev/skyline-smash.git", features = ["weak_l2cvalue"] }
-smash_script = { git = "https://github.com/blu-dev/smash-script.git", branch = "development" }
+skyline_smash = { git = "https://github.com/ultimate-research/skyline-smash.git", features = ["weak_l2cvalue"] }
+smash_script = { git = "https://github.com/WuBoytH/smash-script.git", branch = "development" }
 smashline = { git = "https://github.com/hdr-development/smashline.git" }
 smash_singletons = { git = "https://github.com/WuBoytH/smash_singletons.git" }
+# toml = "0.5.2"  
 
 [profile.dev]
 panic = "abort"
